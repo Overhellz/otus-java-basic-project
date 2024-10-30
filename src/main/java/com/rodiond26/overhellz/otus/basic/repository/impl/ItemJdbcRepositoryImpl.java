@@ -3,6 +3,7 @@ package com.rodiond26.overhellz.otus.basic.repository.impl;
 import com.rodiond26.overhellz.otus.basic.config.DbConfig;
 import com.rodiond26.overhellz.otus.basic.model.Item;
 import com.rodiond26.overhellz.otus.basic.repository.ItemRepository;
+import com.rodiond26.overhellz.otus.basic.repository.pagination.Page;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -26,11 +27,11 @@ public class ItemJdbcRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> findAll(Integer offset, Integer limit) {
+    public List<Item> findAll(Page page) {
         List<Item> resultList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ITEMS_WITH_LIMIT_AND_OFFSET)) {
-            preparedStatement.setInt(1, limit);
-            preparedStatement.setInt(2, offset);
+            preparedStatement.setInt(1, page.getPageSize());
+            preparedStatement.setInt(2, getOffset(page));
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     resultList.add(getItem(resultSet));
@@ -60,7 +61,7 @@ public class ItemJdbcRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> findByTitle(String title) {
+    public List<Item> findByTitle(String title, Page page) {
         List<Item> resultList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ITEM_BY_TITLE)) {
             preparedStatement.setString(1, title);
@@ -77,7 +78,7 @@ public class ItemJdbcRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> findByPrice(BigDecimal min, BigDecimal max) {
+    public List<Item> findByPrice(BigDecimal min, BigDecimal max, Page page) {
         List<Item> resultList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ITEM_BY_PRICE)) {
             preparedStatement.setBigDecimal(1, min);
@@ -95,7 +96,7 @@ public class ItemJdbcRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> findByTitleAndPrice(String title, BigDecimal min, BigDecimal max) {
+    public List<Item> findByTitleAndPrice(String title, BigDecimal min, BigDecimal max, Page page) {
         List<Item> resultList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ITEM_BY_TITLE_AND_PRICE)) {
             preparedStatement.setString(1, title);
@@ -170,6 +171,10 @@ public class ItemJdbcRepositoryImpl implements ItemRepository {
                 config.getUserName(),
                 config.getUserPassword()
         );
+    }
+
+    private int getOffset(Page page) {
+        return (page.getPageNum() - 1) * page.getPageSize();
     }
 
     private Item getItem(ResultSet resultSet) throws SQLException {
