@@ -1,5 +1,6 @@
 package com.rodiond26.overhellz.otus.basic.service.impl;
 
+import com.rodiond26.overhellz.otus.basic.config.DbConfig;
 import com.rodiond26.overhellz.otus.basic.repository.SqlExecutorRepository;
 import com.rodiond26.overhellz.otus.basic.service.SqlExecutorService;
 
@@ -10,9 +11,19 @@ import java.io.FileReader;
 public class SqlExecutorServiceImpl implements SqlExecutorService {
 
     private final SqlExecutorRepository repository;
+    private final DbConfig config;
+    private final String DEFAULT_INIT_SCRIPT = "./src/main/resources/sql-scripts/001-init.sql";
 
-    public SqlExecutorServiceImpl(SqlExecutorRepository repository) {
+    public SqlExecutorServiceImpl(SqlExecutorRepository repository, DbConfig config) {
         this.repository = repository;
+        this.config = config;
+    }
+
+    @Override
+    public void executeInitSqlScripts() {
+        if (config.getIsNeedToInitialize()) {
+            executeSqlScript(DEFAULT_INIT_SCRIPT); // TODO fix
+        }
     }
 
     public void executeSqlScript(String scriptPath) {
