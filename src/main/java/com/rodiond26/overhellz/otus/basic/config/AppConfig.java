@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class AppConfig {
 
+    private HttpServerConfig server;
     private DbConfig dbConfig;
 }

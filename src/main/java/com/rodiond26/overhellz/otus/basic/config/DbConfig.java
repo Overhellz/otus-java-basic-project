@@ -1,12 +1,12 @@
 package com.rodiond26.overhellz.otus.basic.config;
 
-public interface DbConfig {
+import lombok.Data;
 
-    String getDatabaseUrl();
+@Data
+public final class DbConfig {
 
-    String getUserName();
-
-    String getUserPassword();
-
-    boolean isNeedToInitialize();
+    private String databaseUrl;
+    private String userName;
+    private String userPassword;
+    private Boolean isNeedToInitialize;
 }

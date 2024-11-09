@@ -1,0 +1,9 @@
+server:
+  port: 8080
+  threadCount: 10
+
+dbConfig:
+  databaseUrl: 'jdbc:postgresql://localhost:5432/postgres'
+  userName: 'postgres'
+  userPassword: 'postgres'
+  isNeedToInitialize: true
