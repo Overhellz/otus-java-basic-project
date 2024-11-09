@@ -1,50 +1,43 @@
 package com.rodiond26.overhellz.otus.basic;
 
+import com.rodiond26.overhellz.otus.basic.config.AppConfig;
 import com.rodiond26.overhellz.otus.basic.config.DbConfig;
-import com.rodiond26.overhellz.otus.basic.config.impl.PostgresDbConfigImpl;
+import com.rodiond26.overhellz.otus.basic.config.GeneralConfig;
+import com.rodiond26.overhellz.otus.basic.config.HttpServerConfig;
+import com.rodiond26.overhellz.otus.basic.http.Dispatcher;
+import com.rodiond26.overhellz.otus.basic.http.HttpServer;
+import com.rodiond26.overhellz.otus.basic.repository.ItemRepository;
 import com.rodiond26.overhellz.otus.basic.repository.SqlExecutorRepository;
+import com.rodiond26.overhellz.otus.basic.repository.impl.ItemJdbcRepositoryImpl;
 import com.rodiond26.overhellz.otus.basic.repository.impl.SqlExecutorRepositoryImpl;
+import com.rodiond26.overhellz.otus.basic.service.ItemService;
 import com.rodiond26.overhellz.otus.basic.service.SqlExecutorService;
+import com.rodiond26.overhellz.otus.basic.service.impl.ItemServiceImpl;
 import com.rodiond26.overhellz.otus.basic.service.impl.SqlExecutorServiceImpl;
-
-import java.io.File;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class App {
-    public static void main(String[] args) throws SQLException {
-        App app = new App();
-        System.out.println(app.getFiles("."));
-        System.out.println(app.getFiles("./src"));
-        System.out.println(app.getFiles("./src"));
+    private static final Logger LOGGER = LogManager.getLogger(App.class.getName());
 
-        DbConfig config = new PostgresDbConfigImpl();
-        SqlExecutorRepository repository = new SqlExecutorRepositoryImpl(config);
-        SqlExecutorService service = new SqlExecutorServiceImpl(repository);
-        service.executeSqlScript("./src/main/resources/sql-scripts/001-init.sql");
-    }
+    public static void main(String[] args) {
+        LOGGER.info("Старт приложения");
 
-    /**
-     * Возвращает список файлов из каталога directoryPath
-     */
-    public Set<String> getFiles(String directoryPath) {
-        File directory = new File(directoryPath);
-        if (!directory.isDirectory()) {
-            throw new IllegalArgumentException("Указанный путь не является директорией");
-        }
+        GeneralConfig generalConfig = new GeneralConfig();
+        AppConfig appConfig = generalConfig.getAppConfig(GeneralConfig.DEFAULT_CONFIG_PATH);
+        DbConfig dbConfig = appConfig.getDbConfig();
+        HttpServerConfig httpServerConfig = appConfig.getServer();
 
-        File[] files = directory.listFiles();
-        if (files == null) {
-            return Collections.emptySet();
-        }
+        ItemRepository itemRepository = new ItemJdbcRepositoryImpl(dbConfig);
+        SqlExecutorRepository sqlExecutorRepository = new SqlExecutorRepositoryImpl(dbConfig);
 
-        return Arrays.stream(files)
-                .filter(File::isFile)
-                .map(File::getName)
-                .collect(Collectors.toCollection(TreeSet::new));
+        SqlExecutorService sqlExecutorService = new SqlExecutorServiceImpl(sqlExecutorRepository, dbConfig);
+        sqlExecutorService.executeInitSqlScripts();
+        ItemService itemService = new ItemServiceImpl(itemRepository);
+
+        Dispatcher dispatcher = new Dispatcher(itemService);
+        HttpServer httpServer = new HttpServer(httpServerConfig, dispatcher);
+
+        httpServer.start();
     }
 }

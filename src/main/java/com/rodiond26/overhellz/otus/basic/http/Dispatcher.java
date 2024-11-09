@@ -1,8 +1,8 @@
 package com.rodiond26.overhellz.otus.basic.http;
 
+import com.rodiond26.overhellz.otus.basic.http.processor.DefaultInternalServerErrorProcessor;
 import com.rodiond26.overhellz.otus.basic.http.processor.GetAllItemsProcessor;
 import com.rodiond26.overhellz.otus.basic.http.processor.RequestProcessor;
-import com.rodiond26.overhellz.otus.basic.repository.ItemRepository;
 import com.rodiond26.overhellz.otus.basic.service.ItemService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,25 +28,25 @@ public class Dispatcher {
 
         this.processors = new HashMap<>();
         this.processors.put("GET /items", new GetAllItemsProcessor(itemService));
-        this.processors.put("POST /items", new CreateNewItemsProcessor(itemRepository));
-
-        this.defaultNotFoundProcessor = new DefaultNotFoundProcessor();
+//        this.processors.put("POST /items", new CreateNewItemsProcessor(itemRepository));
+//
+//        this.defaultNotFoundProcessor = new DefaultNotFoundProcessor();
         this.defaultInternalServerErrorProcessor = new DefaultInternalServerErrorProcessor();
-        this.defaultBadRequestProcessor = new DefaultBadRequestProcessor();
+//        this.defaultBadRequestProcessor = new DefaultBadRequestProcessor();
     }
 
     public void execute(HttpRequest request, OutputStream out) throws IOException {
         try {
-            LOGGER.debug("Пришел запрос: {}", request);
+            LOGGER.info("Пришел запрос: {}", request);
             if (!processors.containsKey(request.getRoutingKey())) {
                 defaultNotFoundProcessor.execute(request, out);
                 return;
             }
             processors.get(request.getRoutingKey()).execute(request, out);
-        } catch (BadRequestException e) {
-            LOGGER.error("Ошибка Bad Request при запросе {}: {} = {}", request, e.getCause(), e.getStackTrace());
-            request.setException(e);
-            defaultBadRequestProcessor.execute(request, out);
+//        } catch (BadRequestException e) {
+//            LOGGER.error("Ошибка Bad Request при запросе {}: {} = {}", request, e.getCause(), e.getStackTrace());
+//            request.setException(e);
+//            defaultBadRequestProcessor.execute(request, out);
         } catch (Exception e) {
             LOGGER.error("Ошибка при запросе {}: {} = {}", request, e.getCause(), e.getStackTrace());
             defaultInternalServerErrorProcessor.execute(request, out);

@@ -2,6 +2,7 @@ package com.rodiond26.overhellz.otus.basic.http;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@ToString
 public class HttpRequest {
 
     private static final Logger LOGGER = LogManager.getLogger(HttpRequest.class.getName());
@@ -67,11 +69,11 @@ public class HttpRequest {
     }
 
     public void info() {
-        LOGGER.debug("rawRequest: {}", rawRequest);
-        LOGGER.debug("Method: {}", method);
-        LOGGER.debug("URI: {}", uri);
-        LOGGER.debug("Parameters: {}", parameters);
-        LOGGER.debug("Headers: {}", headers);
-        LOGGER.debug("Body: {}", body);
+        LOGGER.info("rawRequest: {}", rawRequest);
+        LOGGER.info("Method: {}", method);
+        LOGGER.info("URI: {}", uri);
+        LOGGER.info("Parameters: {}", parameters);
+        LOGGER.info("Headers: {}", headers);
+        LOGGER.info("Body: {}", body);
     }
 }

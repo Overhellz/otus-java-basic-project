@@ -1,5 +1,6 @@
 package com.rodiond26.overhellz.otus.basic.http.processor;
 
+import com.google.gson.Gson;
 import com.rodiond26.overhellz.otus.basic.http.HttpRequest;
 import com.rodiond26.overhellz.otus.basic.model.Item;
 import com.rodiond26.overhellz.otus.basic.service.ItemService;
