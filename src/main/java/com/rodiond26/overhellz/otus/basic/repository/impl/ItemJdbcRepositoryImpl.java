@@ -18,9 +18,14 @@ public class ItemJdbcRepositoryImpl implements ItemRepository {
     private final DbConfig config;
     private Connection connection;
 
-    public ItemJdbcRepositoryImpl(DbConfig config) throws SQLException {
+    public ItemJdbcRepositoryImpl(DbConfig config)   {
         this.config = config;
-        connection = getConnection();
+        try {
+            connection = getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e); // TODO fix
+        }
+
         if (connection != null) {
             System.out.println("Успешное подключение к базе данных: " + config.getDatabaseUrl()); // TODO logger
         }
